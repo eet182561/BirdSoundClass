@@ -23,7 +23,7 @@ def assign_bird_label(bird_data_list): # returns [total_speaker, labels,labelled
     #print(speaker_label)
     # creating a updating label to main data list
     for detail in bird_data_list:
-        print(detail[0])
+        #print(detail[0])
         detail.append(bird_label.get(detail[0]))
     
     

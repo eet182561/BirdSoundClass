@@ -27,7 +27,3 @@ def assign_bird_label(bird_data_list): # returns [total_speaker, labels,labelled
     
     
     return [len(bird_data_set), bird_label, bird_data_list]
-
-
-
-a = assign_bird_label(extracted_data)

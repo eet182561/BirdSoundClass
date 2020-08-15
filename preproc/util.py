@@ -11,18 +11,23 @@ input: bird data list
 output: total no of bird classes, bird name and label, bird data name list
 desc: take the list of the training wav file name and bird name and used to generate the label corrosponding to the bird
 '''
-def assign_speaker_label(speaker_data): # returns [total_speaker, labels,labelled_speaker_list]
-    data = np.array(speaker_data)
-    speaker_list = set(data[:, 1])  # extrating just speakers
+def assign_bird_label(bird_data_list): # returns [total_speaker, labels,labelled_speaker_list]
+    data = np.array(bird_data_list)
+    bird_data_set = set(data[:, 0])  # extrating just speakers
     label_index =0
-    speaker_label = {}
-    for speaker in speaker_list: # assigning labels to every speaker
-        speaker_label.update({speaker : label_index})
+    bird_label = {}
+    for bird_data in bird_data_set: # assigning labels to every speaker
+        bird_label.update({bird_data : label_index})
         label_index = label_index + 1
     #print(speaker_label)
     # creating a updating label to main data list
-    for detail in speaker_data:
-        detail.append(speaker_label.get(detail[1]))
+    for detail in bird_data_list:
+        print(detail[0])
+        detail.append(bird_label.get(detail[0]))
     
     
-    return [len(speaker_list), speaker_label, speaker_data]
+    return [len(bird_data_set), bird_label, bird_data_list]
+
+
+
+a = assign_bird_label(extracted_data)

@@ -1,0 +1,12 @@
+1) Download and install gitbash using default options if you are in windows. In ubuntu install using apt-get install git
+2) Make a account on github if you don't have. Pass that account name to me.
+3) After that open gitbash. navigate to where you wish to have the project. 
+4) Use git this command to download the repo--'git clone https://github.com/eet182561/Malclass.git'
+5)-7) Chill.
+8) Now pull the master branch from the repo using command `git pull origin master'
+9) It will sync everything. 
+10) Make changes to code/write your own code.
+11) Once done stage the changes using 'git add .' using a '.' will stage all files that you have edit. You can specify the files manually that you want to stage(which will be later committed).
+12) After that commit the staged files using 'git commit -m "Some nice message about what you have changed" '
+13) And then push the changes back to the github server using 
+'git push origin master'

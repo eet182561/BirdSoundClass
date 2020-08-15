@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import numpy as np
 """
 Created on Sat Aug 15 22:30:09 2020
 

@@ -6,6 +6,7 @@ This function should be merged into a single file later.
 import keras
 import random
 import librosa
+import numpy as np
 
 class BirdSequence(keras.utils.Sequence):
     def __init__(self,filenames,labels,batch_size=32,duration=10,sampling_rate=256,shuffle = True):

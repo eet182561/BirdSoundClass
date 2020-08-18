@@ -66,7 +66,7 @@ class BirdSTFT(keras.utils.Sequence):
         for name in batch_x_file_names:
             clip, sample_rate = librosa.load(name, sr=None, duration=self.duration)
             S = librosa.feature.melspectrogram(y=clip, sr=sample_rate)
-            batch_x.append(Sxx)
+            batch_x.append(S)
         return batch_x, np.array(batch_y)
     
     def __len__(self):

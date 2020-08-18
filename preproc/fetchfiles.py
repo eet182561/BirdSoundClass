@@ -18,7 +18,7 @@ class BirdSequence(keras.utils.Sequence):
         self.y = labels
         self.batch_size = batch_size
         if shuffle:
-            temp = zip(self.x,self.y)
+            temp = list(zip(self.x,self.y))
             random.shuffle(temp)
             self.x,self.y = zip(*temp)
         self.duration = duration #in seconds

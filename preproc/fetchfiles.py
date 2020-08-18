@@ -67,7 +67,7 @@ class BirdSTFT(keras.utils.Sequence):
             clip, sample_rate = librosa.load(name, sr=None, duration=self.duration)
             f, t, Sxx = signal.spectrogram(clip, sample_rate)
             batch_x.append(Sxx)
-        return np.array(batch_x), np.array(batch_y)
+        return batch_x, np.array(batch_y)
     
     def __len__(self):
         return math.ceil(len(self.x) / self.batch_size)

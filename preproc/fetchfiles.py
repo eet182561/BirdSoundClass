@@ -42,7 +42,7 @@ class BirdSequence(keras.utils.Sequence):
         return math.ceil(len(self.x) / self.batch_size)
 
 class BirdSTFT(keras.utils.Sequence):
-    def __init__(self,filenames,labels,batch_size=32,duration=10,sampling_rate=256,shuffle = True):
+    def __init__(self,filenames,labels,batch_size=32,duration=10,resampling_rate=40000,shuffle = True):
         '''
         filenames : list of path of filenames to the .mp3. Please note that separate the file names for train and test before calling this function.
         labels: the list of labels
@@ -56,6 +56,7 @@ class BirdSTFT(keras.utils.Sequence):
             random.shuffle(temp)
             self.x,self.y = zip(*temp)
         self.duration = duration #in seconds
+        self.resampling_rate = resampling_rate
     
     def __getitem__(self,idx):
         batch_x_file_names = self.x[idx * self.batch_size:(idx + 1) *
@@ -65,7 +66,8 @@ class BirdSTFT(keras.utils.Sequence):
         batch_x = []
         for name in batch_x_file_names:
             clip, sample_rate = librosa.load(name, sr=None, duration=self.duration)
-            S = librosa.feature.melspectrogram(y=clip, sr=sample_rate)
+            clip_res = librosa.resample(clip, sample_rate, self.resampling_rate)
+            S = np.abs(librosa.core.stft(clip_res))
             batch_x.append(S)
         return batch_x, np.array(batch_y)
     

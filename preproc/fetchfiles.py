@@ -50,13 +50,7 @@ class BirdSTFT(keras.utils.Sequence):
         labels: the list of labels
         batch_size : scalar value typically 32 or 64 or power of 2
         '''
-        self.x = filenames
-        if small_files is None:
-            self.small_files_index = self.calculate_small_files()
-        else:
-            with open(small_files,'rb') as f:
-                self.small_files_index = pickle.load(f)
-            
+        self.x = filenames    
         self.y = labels
         self.label_dict = self.make_label_dict()
         self.batch_size = batch_size
@@ -102,21 +96,4 @@ class BirdSTFT(keras.utils.Sequence):
             label_dict[label] = label_dict.get(label,default=[]) + filename
         return label_dict
 
-    #The below function is not required
-    def calculate_small_files(self):
-        '''
-        Dont't know how much time it will take. So I will write the indexes which can be downloaded.
-        '''
-        indexs = []
-        for idx,file in enumerate(self.x):
-            clip,sr = librosa.load(file,sr=None)
-            #duration = librosa_get_duration(clip,sr)
-            if duration < self.duration :
-                indexs.append(idx)
-            del clip
-            del sr
-            del duration
-        filename = 'samallfiles_'+str(self.duration)+'.pkl'
-        with open(filename,'wb') as f:
-            pickle.dump(indexs,f)
-        return indexs
+    

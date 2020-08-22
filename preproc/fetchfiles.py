@@ -90,8 +90,8 @@ class BirdSTFT(keras.utils.Sequence):
         '''
         while clip.shape[0]/self.resampling_rate < self.duration:
             #Randomly sample from the label dict
-            fname = *random.sample(self.label_dict[label],1)
-            clip2 = librosa.load(fname,sr=self.resampling_rate)
+            fname = random.sample(self.label_dict[label],1)
+            clip2 = librosa.load(*fname,sr=self.resampling_rate)
             clip = np.concatenate(clip,clip2)
         
         return clip[:self.duration*self.resampling_rate]

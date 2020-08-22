@@ -110,7 +110,7 @@ class BirdSTFT(keras.utils.Sequence):
         indexs = []
         for idx,file in enumerate(self.x):
             clip,sr = librosa.load(file,sr=None)
-            duration = librosa_get_duration(clip,sr)
+            #duration = librosa_get_duration(clip,sr)
             if duration < self.duration :
                 indexs.append(idx)
             del clip

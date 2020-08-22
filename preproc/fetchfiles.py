@@ -68,12 +68,12 @@ class BirdSTFT(keras.utils.Sequence):
         self.batch_size]
         batch_x = []
         for idx,name in enumerate(batch_x_file_names):
-            clip = librosa.load(name, sr=self.resampling_rate, duration=self.duration)
+            clip,sr = librosa.load(name, sr=self.resampling_rate, duration=self.duration)
             if clip.shape[0]/self.resampling_rate < self.duration:
                 clip = self.smart_append(clip,batch_y[idx])
-            S = np.abs(librosa.core.stft(clip_res))
+            S = np.abs(librosa.core.stft(clip))
             batch_x.append(S)
-        return batch_x, np.array(batch_y)
+        return np.array(batch_x), np.array(batch_y)
     
     def __len__(self):
         return math.ceil(len(self.x) / self.batch_size)
@@ -85,15 +85,15 @@ class BirdSTFT(keras.utils.Sequence):
         while clip.shape[0]/self.resampling_rate < self.duration:
             #Randomly sample from the label dict
             fname = random.sample(self.label_dict[label],1)
-            clip2 = librosa.load(*fname,sr=self.resampling_rate)
-            clip = np.concatenate(clip,clip2)
+            clip2,sr = librosa.load(*fname,sr=self.resampling_rate)
+            clip = np.concatenate((clip,clip2))
         
         return clip[:self.duration*self.resampling_rate]
     
     def make_label_dict(self):
-        lebel_dict = {}
+        label_dict = {}
         for filename,label in zip(self.x,self.y):
-            label_dict[label] = label_dict.get(label,default=[]) + filename
+            label_dict[label] = label_dict.get(label,[]) + [filename]
         return label_dict
 
     

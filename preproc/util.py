@@ -28,3 +28,9 @@ def assign_bird_label(bird_data_list): # returns [total_speaker, labels,labelled
     
     
     return [len(bird_data_set), bird_label, bird_data_list]
+
+from sklearn.preprocessing import OneHotEncoder
+def to_one_hot(labels):
+    enc = OneHotEncoder()
+    v = enc.fit_transform(np.array(labels).reshape(-1,1))
+    return v

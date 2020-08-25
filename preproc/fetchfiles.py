@@ -12,7 +12,7 @@ import pickle
 
 from scipy import signal
 from scipy.fft import fftshift
-from util import to_one_hot
+from preproc.util import to_one_hot
 
 class BirdSequence(keras.utils.Sequence):
     def __init__(self,filenames,labels,batch_size=32,duration=10,sampling_rate=256,shuffle = True,small_files= None):

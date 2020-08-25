@@ -77,7 +77,7 @@ class BirdSTFT(keras.utils.Sequence):
                 clip = self.smart_append(clip,batch_y[idxx])
             S = np.abs(librosa.core.stft(clip, n_fft=2048, hop_length=None, win_length= None, window=signal.hamming))
             batch_x.append(S)
-        return np.array(batch_x), batch_one_hot
+        return np.array(batch_x), batch_one_hot.toarray()
     
     def __len__(self):
         return math.ceil(len(self.x) / self.batch_size)

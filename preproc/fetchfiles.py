@@ -44,7 +44,7 @@ class BirdSequence(keras.utils.Sequence):
         return math.ceil(len(self.x) / self.batch_size)
 
 class BirdSTFT(keras.utils.Sequence):
-    def __init__(self,filenames,labels,batch_size=32,duration=10,resampling_rate=40000,shuffle = True,small_files = None):
+    def __init__(self,filenames,labels,batch_size=32,duration=10,resampling_rate=48000,shuffle = True,small_files = None):
         '''
         filenames : list of path of filenames to the .mp3. Please note that separate the file names for train and test before calling this function.
         labels: the list of labels
@@ -71,7 +71,7 @@ class BirdSTFT(keras.utils.Sequence):
             clip,sr = librosa.load(name, sr=self.resampling_rate, duration=self.duration)
             if clip.shape[0]/self.resampling_rate < self.duration:
                 clip = self.smart_append(clip,batch_y[idx])
-            S = np.abs(librosa.core.stft(clip))
+            S = np.abs(librosa.core.stft(clip, n_fft=2048, hop_length=None, win_length= None, window=signal.hamming))
             batch_x.append(S)
         return np.array(batch_x), np.array(batch_y)
     

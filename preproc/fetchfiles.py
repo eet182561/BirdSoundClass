@@ -12,6 +12,7 @@ import pickle
 
 from scipy import signal
 from scipy.fft import fftshift
+from util import to_one_hot
 
 class BirdSequence(keras.utils.Sequence):
     def __init__(self,filenames,labels,batch_size=32,duration=10,sampling_rate=256,shuffle = True,small_files= None):
@@ -60,20 +61,23 @@ class BirdSTFT(keras.utils.Sequence):
             self.x,self.y = zip(*temp)
         self.duration = duration #in seconds
         self.resampling_rate = resampling_rate
+        self.one_hot_labels = to_one_hot(self.y)
     
     def __getitem__(self,idx):
         batch_x_file_names = self.x[idx * self.batch_size:(idx + 1) *
         self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) *
         self.batch_size]
+        batch_one_hot = self.one_hot_labels[idx * self.batch_size:(idx + 1) *
+        self.batch_size]
         batch_x = []
-        for idx,name in enumerate(batch_x_file_names):
+        for idxx,name in enumerate(batch_x_file_names):
             clip,sr = librosa.load(name, sr=self.resampling_rate, duration=self.duration)
             if clip.shape[0]/self.resampling_rate < self.duration:
-                clip = self.smart_append(clip,batch_y[idx])
+                clip = self.smart_append(clip,batch_y[idxx])
             S = np.abs(librosa.core.stft(clip, n_fft=2048, hop_length=None, win_length= None, window=signal.hamming))
             batch_x.append(S)
-        return np.array(batch_x), np.array(batch_y)
+        return np.array(batch_x), np.array(batch_one_hot)
     
     def __len__(self):
         return math.ceil(len(self.x) / self.batch_size)

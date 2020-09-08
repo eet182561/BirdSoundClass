@@ -71,12 +71,28 @@ class BirdSTFT(keras.utils.Sequence):
         batch_one_hot = self.one_hot_labels[idx * self.batch_size:(idx + 1) *
         self.batch_size]
         batch_x = []
+        '''
         for idxx,name in enumerate(batch_x_file_names):
             clip,sr = librosa.load(name, sr=self.resampling_rate, duration=self.duration)
             if clip.shape[0]/self.resampling_rate < self.duration:
                 clip = self.smart_append(clip,batch_y[idxx])
             S = np.abs(librosa.core.stft(clip, n_fft=2048, hop_length=None, win_length= None, window=signal.hamming))
             batch_x.append(S)
+        '''
+        for idxx,name in enumerate(batch_x_file_names):
+            flag = False
+            while flag is False:
+                try:
+                    clip,sr = librosa.load(name, sr=None, duration=self.duration)
+                    flag = True
+                except:
+                    label_librosa_problem = batch_y[idxx]
+                    name = random.sample(self.label_dict[label_librosa_problem],1)[0]
+                    
+                if clip.shape[0]/self.sr < self.duration:
+                    clip = self.smart_append(clip,batch_y[idxx])
+                S = np.abs(librosa.core.stft(clip, n_fft=2048, hop_length=None, win_length= None, window=signal.hamming))
+                batch_x.append(S)
         return np.array(batch_x), batch_one_hot.toarray()
     
     def __len__(self):
@@ -89,7 +105,13 @@ class BirdSTFT(keras.utils.Sequence):
         while clip.shape[0]/self.resampling_rate < self.duration:
             #Randomly sample from the label dict
             fname = random.sample(self.label_dict[label],1)
-            clip2,sr = librosa.load(*fname,sr=self.resampling_rate)
+            flag = False
+            while flag is False:
+                try:
+                    clip2,sr = librosa.load(*fname,sr=self.resampling_rate)
+                    flag = True
+                except:
+                    fname = random.sample(self.label_dict[label],1)
             clip = np.concatenate((clip,clip2))
         
         return clip[:self.duration*self.resampling_rate]

@@ -83,40 +83,103 @@ def evaluate_model(trainX, trainy):
     return model
 
 
+# create custom genrator class for small dataset
+
+class My_Custom_Generator(keras.utils.Sequence) :
+  
+  def __init__(self, audio_filenames, batch_size) :
+    self.audio_filenames = audio_filenames
+    self.count = len(audio_filenames)
+    self.batch_size = batch_size
+    
+    
+  def __len__(self) :
+    # print("length by the class function", (np.ceil(len(self.audio_filenames) / float(self.batch_size))).astype(np.int))
+    return (np.ceil(len(self.audio_filenames) / float(self.batch_size))).astype(np.int)
+  
+  
+  def __getitem__(self, idx) :
+    # write code for preprocessing the audio file and accumulating the stft
+    # print('index for getting element', idx, (idx +1)* self.batch_size, self.count)
+    if (idx +1)* self.batch_size < self.count:
+        data  = self.audio_filenames[idx*self.batch_size : (idx+1)*self.batch_size]
+    else :
+        # print("inside else of getting item", idx, self.batch_size, self.count )
+        data = self.audio_filenames[idx*self.batch_size : self.count]
+        # data.extend(self.audio_filenames[0:self.count - idx*self.batch_size ])
+    # print('length of data =', len(data))
+    all_data = []
+    all_label = []
+    for row in data:
+        a = extract_stft(os.path.join(base_path_file_read, row[0]+'.flac'), row[3], row[5])
+        y = keras.utils.to_categorical(row[1], num_classes=25)
+        all_data.append(a)
+        all_label.append(y)
+    all_data = np.array(all_data)
+    all_label = np.array(all_label)
+    return all_data, all_label    
+    # batch_x = self.image_filenames[idx * self.batch_size : (idx+1) * self.batch_size]
+    # batch_y = self.labels[idx * self.batch_size : (idx+1) * self.batch_size]
+    
+    # return np.array([
+    #         resize(imread('/content/all_images/' + str(file_name)), (80, 80, 3))
+    #            for file_name in batch_x])/255.0, np.array(batch_y)
+
+
+
 traint = pd.read_csv( 'F:/database/kaggle/train_tp_small.csv' )
 train_fp = pd.read_csv('F:/database/kaggle/train_fp_small.csv' )
-traint_values = traint.values
-train_fp_values = train_fp.values
+train_fp['species_id'] = 24
+all_data = pd.concat([traint, train_fp])
+shuffled_data = shuffle(all_data)
+shuffled_data = shuffled_data.values
+validation_split = 0.8
+training_data = shuffled_data[0: int(len(shuffled_data)*validation_split)]
+validation_data = shuffled_data[int(len(shuffled_data)*validation_split) : ]    
+
+train_generator = My_Custom_Generator(training_data, 32)
+validation_generator = My_Custom_Generator(validation_data, 32)
 base_path_file_read = 'F:\\database\\kaggle\\train'
-max_duration = 0
-max_diff =0
-all_diff =[]
-# find max duration
-for values in traint_values:
-    diff = values[5] - values[3]
-    all_diff.append(diff)
-    if diff > max_diff:
-        max_diff = diff
-
-traint_values = shuffle(traint_values)
-train_fp_values = shuffle(train_fp_values)
-total_rec = traint.axes[0].stop + train_fp.axes[0].stop 
 a = extract_stft(os.path.join(base_path_file_read, traint['recording_id'][0]+'.flac'))
-all_data = []
-all_label = []
-for row in traint_values:
-    a = extract_stft(os.path.join(base_path_file_read, row[0]+'.flac'), row[3], row[5])
-    y = keras.utils.to_categorical(row[1], num_classes=25)
-    all_data.append(a)
-    all_label .append(y)
+n_classes = 25
+batch_size = 32
+n_timesteps, n_features, n_outputs = a.shape[0], a.shape[1], n_classes
+model = Sequential()
+model.add(Masking(mask_value=a[-1,:], input_shape=(n_timesteps,n_features)))
+model.add(LSTM(32,  return_sequences=False))
 
-for row in train_fp_values:
-    a = extract_stft(os.path.join(base_path_file_read, row[0]+'.flac'), row[3], row[5])
-    y = keras.utils.to_categorical(24, num_classes=25)
-    all_data.append(a)
-    all_label .append(y)
+model.add(Dense(n_outputs, activation='softmax'))
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.summary()
+
+model.fit_generator(generator=train_generator,
+                   steps_per_epoch = 10,
+                   epochs = 5,
+                   verbose = 2,
+                   validation_data = validation_generator,
+                   validation_steps = 1)
+
+#%%
+
+
+# total_rec = traint.axes[0].stop + train_fp.axes[0].stop 
+# a = extract_stft(os.path.join(base_path_file_read, traint['recording_id'][0]+'.flac'))
+# all_data = []
+# all_label = []
+# for row in traint_values:
+#     a = extract_stft(os.path.join(base_path_file_read, row[0]+'.flac'), row[3], row[5])
+#     y = keras.utils.to_categorical(row[1], num_classes=25)
+#     all_data.append(a)
+#     all_label.append(y)
+
+# for row in train_fp_values:
+#     a = extract_stft(os.path.join(base_path_file_read, row[0]+'.flac'), row[3], row[5])
+#     y = keras.utils.to_categorical(24, num_classes=25)
+#     all_data.append(a)
+#     all_label .append(y)
     
-all_data = np.array(all_data)
-all_label = np.array(all_label)
-model = evaluate_model(all_data, all_label)
+# all_data = np.array(all_data)
+# all_label = np.array(all_label)
+# model = evaluate_model(all_data, all_label)
+
 

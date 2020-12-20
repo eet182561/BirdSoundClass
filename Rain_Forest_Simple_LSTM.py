@@ -145,6 +145,7 @@ model.add(Dense(n_outputs, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 model.summary()
 #%% training the model
+
 model.fit_generator(generator=train_generator,
                    steps_per_epoch = 10,
                    epochs = 5,

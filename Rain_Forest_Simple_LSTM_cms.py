@@ -65,24 +65,10 @@ def extract_stft(fn,start_time=0,end_time=60, nperseg=1200,noverlap=600, nfft=20
     else:
         data = data[0 : int(np.floor(samplerate*pad_dur))]
     features = np.abs(signal.stft(data, samplerate, nperseg=nperseg,noverlap=noverlap, nfft=nfft)[2])
+    features[features == 0] = 10**-5
+    features = np.log(features)
     features = features - np.average(features, axis = 0)
     return features
-
-def evaluate_model(trainX, trainy):
-    verbose, epochs, batch_size = 2, 4, 32
-    print('printing netwok shape',trainX.shape[1], trainX.shape[2], trainy.shape[1])
-    n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
-    model = Sequential()
-    model.add(Masking(mask_value=trainX[0,-1,:], input_shape=(n_timesteps,n_features)))
-    model.add(LSTM(128,  return_sequences=False))
-
-    model.add(Dense(n_outputs, activation='softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    model.summary()
-    history = model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, shuffle=True, validation_split=0.8, verbose=verbose)
-    print(history.history.keys())
-    return model
-
 
 # create custom genrator class for small dataset
 

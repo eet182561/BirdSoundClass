@@ -135,7 +135,7 @@ validation_generator = My_Custom_Generator(validation_data, 32)
 base_path_file_read = 'F:\\database\\kaggle\\train'
 a = extract_stft(os.path.join(base_path_file_read, traint['recording_id'][0]+'.flac'))
 n_classes = 25
-batch_size = 32
+batch_size = 64
 n_timesteps, n_features, n_outputs = a.shape[0], a.shape[1], n_classes
 model = Sequential()
 model.add(Masking(mask_value=a[-1,:], input_shape=(n_timesteps,n_features)))
@@ -151,7 +151,7 @@ model.fit_generator(generator=train_generator,
                    epochs = 5,
                    verbose = 2,
                    validation_data = validation_generator,
-                   validation_steps = 1)
+                   validation_steps = 2)
 
 #%% testing the trained model
 # take one minute data then calculate the stft for the data and predict the class

@@ -41,6 +41,7 @@ from sklearn.utils import shuffle
 from keras.layers import Input, Lambda, merge, Dense, Flatten, Dropout, BatchNormalization, LSTM, Minimum, Concatenate, Masking, Dot, Average
 from keras.models import Model, Sequential
 from keras.callbacks import EarlyStopping, LambdaCallback
+from keras.optimizers import SGD, Adam
 
 def extract_fft(fn):
     data, samplerate = sf.read(fn)
@@ -128,9 +129,10 @@ n_timesteps, n_features, n_outputs = a.shape[0], a.shape[1], n_classes
 model = Sequential()
 model.add(Masking(mask_value=a[-1,:], input_shape=(n_timesteps,n_features)))
 model.add(LSTM(32,  return_sequences=False))
-
 model.add(Dense(n_outputs, activation='softmax'))
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+early_stopping = EarlyStopping(monitor='val_loss', patience=4, min_delta=0.001);
+opt = Adam(0.001)
+model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 model.summary()
 #%% training the model
 
@@ -139,7 +141,9 @@ model.fit_generator(generator=train_generator,
                    epochs = 5,
                    verbose = 2,
                    validation_data = validation_generator,
-                   validation_steps = 1)
+                   validation_steps = 1,
+                   shuffle=True, 
+                   callbacks=[early_stopping])
 
 #%% testing the trained model
 # take one minute data then calculate the stft for the data and predict the class
